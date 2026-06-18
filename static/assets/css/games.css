@@ -15,7 +15,7 @@ h6 {
   font-family: "Roboto", serif;
   text-align: center;
   font-weight: 400;
-  color: #faf9f6;
+  color: var(--site-text, #faf9f6);
 }
 
 .loading-container {
@@ -31,23 +31,28 @@ h6 {
   font-family: "Roboto", serif;
   font-size: 18px;
   font-weight: 500;
-  color: #faf9f6;
+  color: var(--site-text, #faf9f6);
   opacity: 0.9;
 }
 
 .progress-bar-container {
   width: 400px;
   height: 12px;
-  background: rgba(122, 143, 171, 0.3);
+  background: color-mix(in srgb, var(--site-surface, #7a8fab) 35%, transparent);
   border-radius: 6px;
   overflow: hidden;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(122, 143, 171, 0.5);
+  border: 1px solid color-mix(in srgb, var(--site-surface, #7a8fab) 60%, transparent);
 }
 
 .progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, #7a8fab 0%, #6f829b 50%, #8fa5c7 100%);
+  background: linear-gradient(
+    90deg,
+    var(--site-surface, #7a8fab) 0%,
+    var(--site-accent, #6f829b) 50%,
+    var(--site-muted, #8fa5c7) 100%
+  );
   border-radius: 6px;
   width: 0%;
   transition: width 0.3s ease;
@@ -87,7 +92,7 @@ h6 {
   font-family: "Roboto", serif;
   font-size: 14px;
   font-weight: 500;
-  color: #faf9f6;
+  color: var(--site-text, #faf9f6);
   opacity: 0.8;
   margin-top: 5px;
 }
@@ -141,12 +146,12 @@ h6 {
   padding: 1vw;
   width: 40%;
   border-radius: 5px;
-  background: #7a8fab;
+  background: var(--site-input-bg, #7a8fab);
   text-align: left;
   font-size: 24px;
   border: none;
   outline: none;
-  color: #faf9f6;
+  color: var(--site-input-text, #faf9f6);
   transition: 0.2s;
   margin: 0px 0px 20px 0px;
   transition: 0.3s;
@@ -155,14 +160,14 @@ h6 {
 .searchbar::placeholder {
   font-family: "Roboto", serif;
   font-size: 16px;
-  color: #faf9f6;
+  color: var(--site-placeholder, #faf9f6);
   text-align: center;
   opacity: 0.4;
 }
 
 .searchbar:focus {
   outline: none;
-  background: #6f829b;
+  background: var(--site-surface-3, #6f829b);
   scale: 1.1;
   transition: 0.3s;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);

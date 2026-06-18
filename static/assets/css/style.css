@@ -1,10 +1,114 @@
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
+
+:root {
+  color-scheme: dark;
+  --site-bg: #5e7594;
+  --site-text: #ffffff;
+  --site-muted: #b5cae0;
+  --site-surface: #7a8fab;
+  --site-surface-2: #5e7594;
+  --site-surface-3: #4a5f7a;
+  --site-border: #353d49;
+  --site-button: #413d3d;
+  --site-button-hover: #2f2b2b;
+  --site-accent: #fc8585;
+  --site-accent-hover: #e7928f;
+  --site-accent-text: #484c51;
+  --site-link: #f1a727;
+  --site-link-hover: #f1d41d;
+  --site-input-bg: #7a8fab;
+  --site-input-text: #ffffff;
+  --site-placeholder: #d7e2ee;
+  --site-shadow: rgba(0, 0, 0, 0.24);
+}
+
+:root[data-theme="midnight"] {
+  --site-bg: #121826;
+  --site-text: #f5f7fb;
+  --site-muted: #9eb6d8;
+  --site-surface: #22304a;
+  --site-surface-2: #182235;
+  --site-surface-3: #101827;
+  --site-border: #33425f;
+  --site-button: #2d3a56;
+  --site-button-hover: #425276;
+  --site-accent: #7dd3fc;
+  --site-accent-hover: #38bdf8;
+  --site-accent-text: #07111f;
+  --site-link: #fbbf24;
+  --site-link-hover: #fde68a;
+  --site-input-bg: #22304a;
+  --site-input-text: #f5f7fb;
+  --site-placeholder: #b8c7dd;
+}
+
+:root[data-theme="forest"] {
+  --site-bg: #233329;
+  --site-text: #f4fbf4;
+  --site-muted: #b7d9bd;
+  --site-surface: #3e5f48;
+  --site-surface-2: #2c4634;
+  --site-surface-3: #1d2f24;
+  --site-border: #16251c;
+  --site-button: #263b2c;
+  --site-button-hover: #345840;
+  --site-accent: #e4b363;
+  --site-accent-hover: #f1c979;
+  --site-accent-text: #1f2d24;
+  --site-link: #f4d35e;
+  --site-link-hover: #fff3a6;
+  --site-input-bg: #3e5f48;
+  --site-input-text: #f4fbf4;
+  --site-placeholder: #d3e8d6;
+}
+
+:root[data-theme="sunset"] {
+  --site-bg: #40284f;
+  --site-text: #fff8f3;
+  --site-muted: #ffd0c2;
+  --site-surface: #74456f;
+  --site-surface-2: #5a3264;
+  --site-surface-3: #352040;
+  --site-border: #271932;
+  --site-button: #523256;
+  --site-button-hover: #6f4168;
+  --site-accent: #ffb86b;
+  --site-accent-hover: #ff9f68;
+  --site-accent-text: #2f2031;
+  --site-link: #ffe066;
+  --site-link-hover: #fff2ad;
+  --site-input-bg: #74456f;
+  --site-input-text: #fff8f3;
+  --site-placeholder: #ffe2d8;
+}
+
+:root[data-theme="contrast"] {
+  color-scheme: dark;
+  --site-bg: #000000;
+  --site-text: #ffffff;
+  --site-muted: #f5f5f5;
+  --site-surface: #1a1a1a;
+  --site-surface-2: #000000;
+  --site-surface-3: #111111;
+  --site-border: #ffffff;
+  --site-button: #000000;
+  --site-button-hover: #222222;
+  --site-accent: #ffff00;
+  --site-accent-hover: #00ffff;
+  --site-accent-text: #000000;
+  --site-link: #00ffff;
+  --site-link-hover: #ffff00;
+  --site-input-bg: #000000;
+  --site-input-text: #ffffff;
+  --site-placeholder: #ffffff;
+}
+
 body {
   font-family: "Roboto", serif;
   margin: 0;
   padding: 0;
-  background-color: #5e7594;
-  color: white;
+  background-color: var(--site-bg);
+  color: var(--site-text);
 }
 
 title {
@@ -33,9 +137,9 @@ main {
 
 #gs {
   cursor: pointer;
-  background-color: #413d3d;
+  background-color: var(--site-button);
   border: none;
-  color: rgb(248, 244, 244);
+  color: var(--site-text);
   padding: 10px 30px;
   margin-left: 10px;
   margin-right: 10px;
@@ -50,6 +154,7 @@ main {
 #gs:hover {
   transform: scale(1.06);
   border-radius: 6px;
+  background-color: var(--site-button-hover);
 }
 #gs:active {
   transform: scale(0.94);
@@ -58,9 +163,9 @@ main {
 
 .gs {
   cursor: pointer;
-  background-color: #413d3d;
+  background-color: var(--site-button);
   border: none;
-  color: rgb(248, 244, 244);
+  color: var(--site-text);
   padding: 10px 30px;
   margin-left: 10px;
   margin-right: 10px;
@@ -75,6 +180,7 @@ main {
 .gs:hover {
   transform: scale(1.06);
   border-radius: 6px;
+  background-color: var(--site-button-hover);
 }
 .gs:active {
   transform: scale(0.94);
@@ -87,13 +193,13 @@ main {
 }
 
 a {
-  color: #f1a727;
+  color: var(--site-link);
   text-decoration: none;
   transition: color 0.3s ease;
 }
 
 a:hover {
-  color: #f1d41d;
+  color: var(--site-link-hover);
 }
 
 /* Scrollbar settings */
@@ -101,15 +207,15 @@ a:hover {
   width: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: var(--site-surface-3);
   border-radius: 3px;
   box-shadow: inset 0 0 5px grey;
 }
 ::-webkit-scrollbar-thumb {
-  background: #888;
+  background: var(--site-accent);
   border-radius: 2px;
   transform: background 0.1s ease;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: var(--site-accent-hover);
 }

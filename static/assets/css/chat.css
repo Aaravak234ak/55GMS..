@@ -1538,3 +1538,109 @@ select {
 #groupMembersList::-webkit-scrollbar-thumb:hover {
   background: #5a6f8a;
 }
+
+/* Theme overrides */
+.chat-container,
+.chat-empty,
+.message-input-container,
+.chat-search input,
+.modal-content,
+.friends-content,
+.create-chat-content,
+.message-input-wrapper textarea,
+.chat-messages {
+  background: var(--site-bg, #5e7594);
+  color: var(--site-text, white);
+}
+
+.chat-sidebar,
+.chat-search,
+.chat-list,
+.message-input-container,
+.modal-body,
+.friends-list,
+.create-chat-body,
+.friend-item,
+.group-member-item {
+  background: var(--site-surface-3, #4a5f7a);
+}
+
+.chat-header,
+.user-info-bar,
+.main-chat-header,
+.modal-header,
+.friends-header,
+.create-chat-header,
+.tab-content,
+.friends-tabs,
+.group-members-section {
+  background: var(--site-surface-2, #3d4f66);
+}
+
+.action-btn,
+.copy-btn,
+.avatar-circle,
+.message-actions button,
+.send-btn,
+.close-btn,
+.friend-action-btn,
+.create-chat-btn,
+.tab-btn.active {
+  background: var(--site-button, #353d49);
+  color: var(--site-text, white);
+}
+
+.action-btn:hover,
+.copy-btn:hover,
+.message-actions button:hover,
+.send-btn:hover,
+.close-btn:hover,
+.friend-action-btn:hover,
+.create-chat-btn:hover {
+  background: var(--site-button-hover, #2f2b2b);
+}
+
+.chat-sidebar,
+.chat-header,
+.chat-search,
+.user-info-bar,
+.message-input-container,
+.message-input-wrapper textarea,
+.modal-content,
+.modal-header,
+.friends-tabs,
+.group-member-item {
+  border-color: var(--site-border, #353d49);
+}
+
+.user-avatar,
+.avatar-circle,
+.chat-item.active .avatar-circle,
+.message-avatar {
+  background: var(--site-button, #353d49);
+  border-color: var(--site-muted, #b5cae0);
+  color: var(--site-muted, #b5cae0);
+}
+
+.chat-item:hover,
+.chat-item.active,
+.group-member-item:hover,
+#groupMembersModal .close:hover {
+  background: var(--site-surface-2, #3d4f66);
+}
+
+.chat-search input::placeholder,
+.message-input-wrapper textarea::placeholder,
+.chat-item-preview,
+.empty-text,
+.member-status,
+.tab-btn {
+  color: var(--site-placeholder, #b8c5d1);
+}
+
+.main-chat-title,
+.chat-header h2,
+.member-username,
+#groupMembersModal .modal-header h3 {
+  color: var(--site-text, white);
+}

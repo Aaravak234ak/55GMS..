@@ -14,14 +14,14 @@
 
 .card {
   transition: 0.3s;
-  border-radius: 30px;
+  border-radius: 8px;
   width: 30%;
   height: 250px;
-  color: white;
-  background-color: #7a8fab;
+  color: var(--site-text, white);
+  background-color: var(--site-surface, #7a8fab);
   max-height: 100%;
-  border: none;
-  box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24),
+  border: 1px solid color-mix(in srgb, var(--site-border, #353d49) 55%, transparent);
+  box-shadow: 0 12px 16px 0 var(--site-shadow, rgba(0, 0, 0, 0.24)),
     0 17px 50px 0 rgba(0, 0, 0, 0.19);
 }
 
@@ -52,9 +52,9 @@ p {
 
 .tab-cloak {
   cursor: pointer;
-  background-color: #fc8585;
+  background-color: var(--site-accent, #fc8585);
   border: none;
-  color: rgb(248, 244, 244);
+  color: var(--site-accent-text, rgb(248, 244, 244));
   padding: 10px 20px;
   margin: 3px 6px 3px 6px;
   text-align: center;
@@ -76,9 +76,9 @@ img {
 select,
 input {
   font-family: Arial, sans-serif;
-  border: none;
-  background-color: rgb(255, 255, 255);
-  color: rgb(0, 0, 0);
+  border: 1px solid color-mix(in srgb, var(--site-border, #353d49) 50%, transparent);
+  background-color: var(--site-input-bg, rgb(255, 255, 255));
+  color: var(--site-input-text, rgb(0, 0, 0));
   cursor: pointer;
   transition: all 0.2s ease-in-out;
   padding: 0.5rem;
@@ -113,15 +113,15 @@ select {
   border: 2px;
   transition: 0.2s;
   margin-top: 10px;
-  background-color: #5e7594;
+  background-color: var(--site-surface-2, #5e7594);
   border-radius: 0.375rem;
-  color: rgb(255, 255, 255);
+  color: var(--site-input-text, rgb(255, 255, 255));
   padding: 5px;
   text-align: center;
 }
 
 .tab-cloaker-form::placeholder {
-  color: #fff;
+  color: var(--site-placeholder, #fff);
 }
 .switch {
   position: relative;
@@ -161,11 +161,11 @@ select {
 }
 
 input:checked + .slider {
-  background-color: #a6d189;
+  background-color: var(--site-accent, #a6d189);
 }
 
 input:focus + .slider {
-  box-shadow: 0 0 1px #a6d189;
+  box-shadow: 0 0 1px var(--site-accent, #a6d189);
 }
 
 input:checked + .slider:before {
@@ -184,6 +184,59 @@ input:checked + .slider:before {
 
 .uploadBox {
   background: transparent;
-  border: 2px dashed #ccc;
+  border: 2px dashed var(--site-muted, #ccc);
   margin-right: 10px;
+}
+
+.theme-swatches {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 18px;
+}
+
+.theme-swatch {
+  width: 28px;
+  height: 28px;
+  border: 2px solid rgba(255, 255, 255, 0.65);
+  border-radius: 50%;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.22);
+}
+
+.theme-swatch-classic {
+  background: linear-gradient(135deg, #5e7594 0 50%, #fc8585 50%);
+}
+
+.theme-swatch-midnight {
+  background: linear-gradient(135deg, #121826 0 50%, #7dd3fc 50%);
+}
+
+.theme-swatch-forest {
+  background: linear-gradient(135deg, #233329 0 50%, #e4b363 50%);
+}
+
+.theme-swatch-sunset {
+  background: linear-gradient(135deg, #40284f 0 50%, #ffb86b 50%);
+}
+
+.theme-swatch-contrast {
+  background: linear-gradient(135deg, #000 0 50%, #ffff00 50%);
+}
+
+@media screen and (max-width: 1000px) {
+  .card {
+    width: 42%;
+  }
+}
+
+@media screen and (max-width: 680px) {
+  .row {
+    margin-top: 4vh;
+  }
+
+  .card {
+    width: 88%;
+    height: auto;
+    min-height: 230px;
+  }
 }

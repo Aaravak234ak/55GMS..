@@ -1,5 +1,28 @@
 var cloakElement;
 
+var siteThemes = {
+  classic: "Classic Blue",
+  midnight: "Midnight",
+  forest: "Forest",
+  sunset: "Sunset",
+  contrast: "High Contrast",
+};
+
+function getSafeTheme(theme) {
+  return siteThemes[theme] ? theme : "classic";
+}
+
+function setSiteTheme(theme) {
+  var safeTheme = getSafeTheme(theme);
+  document.documentElement.dataset.theme = safeTheme;
+  localStorage.setItem("siteTheme", safeTheme);
+}
+
+(function applySavedTheme() {
+  var savedTheme = localStorage.getItem("siteTheme") || "classic";
+  document.documentElement.dataset.theme = getSafeTheme(savedTheme);
+})();
+
 var tab = localStorage.getItem("tab");
 if (tab) {
   try {
@@ -157,6 +180,13 @@ document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("key").value = panicKey;
   document.getElementById("link").value = panicLink;
   cloakElement = document.getElementById("premadecloaks");
+  var themeSelect = document.getElementById("siteTheme");
+  if (themeSelect) {
+    themeSelect.value = getSafeTheme(localStorage.getItem("siteTheme"));
+    themeSelect.addEventListener("change", function () {
+      setSiteTheme(themeSelect.value);
+    });
+  }
 
   const toggle = document.getElementById("toggle");
   if (toggled === "true") {
@@ -282,28 +312,7 @@ var months = [
 ];
 
 function convertDate(date_str) {
-  temp_date = date_str.split("-");
-  return (
-    temp_date[2] + " " + months[Number(temp_date[1]) - 1] + " " + temp_date[0]
-  );
-}
-var months = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-
-function convertDate(date_str) {
-  temp_date = date_str.split("-");
+  var temp_date = date_str.split("-");
   return (
     months[Number(temp_date[1]) - 1] + " " + temp_date[2] + ", " + temp_date[0]
   );

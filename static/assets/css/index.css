@@ -2,7 +2,7 @@
 
 #titles {
   font-size: 72px;
-  color: #ffffff;
+  color: var(--site-text, #ffffff);
   font-weight: bold;
   margin-bottom: 5px;
   font-family: "Roboto", serif;
@@ -12,7 +12,7 @@
 
 #sub {
   font-size: 17px;
-  color: #b5cae0;
+  color: var(--site-muted, #b5cae0);
   margin-bottom: 2px;
   font-family: "Roboto", serif;
   text-align: center;
@@ -23,18 +23,18 @@
   padding: 1.2vw;
   width: 50%;
   border-radius: 5px;
-  background: #7a8fab;
+  background: var(--site-input-bg, #7a8fab);
   text-align: center;
   font-size: 24px;
   border: none;
   outline: none;
-  color: white;
+  color: var(--site-input-text, white);
   transition: 0.2s;
   margin: 0;
 }
 
 .form__input::placeholder {
-  color: #aaa;
+  color: var(--site-placeholder, #aaa);
   text-align: center;
 }
 
@@ -72,8 +72,8 @@
 }
 
 .infobtn {
-  background-color: #7a8fab;
-  color: white;
+  background-color: var(--site-surface, #7a8fab);
+  color: var(--site-text, white);
   border: none;
   padding: 10px 20px;
   text-align: center;
@@ -86,5 +86,5 @@
 
 .infobtn:hover {
   scale: 1.05;
-  color: #b5cae0;
+  color: var(--site-muted, #b5cae0);
 }

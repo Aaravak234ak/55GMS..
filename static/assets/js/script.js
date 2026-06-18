@@ -6,6 +6,19 @@ function script(text) {
   );
 }
 
+(function applySavedTheme() {
+  const allowedThemes = new Set([
+    "classic",
+    "midnight",
+    "forest",
+    "sunset",
+    "contrast",
+  ]);
+  const savedTheme = localStorage.getItem("siteTheme") || "classic";
+  const theme = allowedThemes.has(savedTheme) ? savedTheme : "classic";
+  document.documentElement.dataset.theme = theme;
+})();
+
 // ====================================
 // SCRIPT INJECTION
 // ====================================
