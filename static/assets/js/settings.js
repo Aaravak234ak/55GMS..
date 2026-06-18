@@ -34,12 +34,6 @@ if (tab) {
   var tabData = {};
 }
 
-var titleElement = document.getElementById("title");
-var iconElement = document.getElementById("icon");
-
-if (tabData.title && titleElement) titleElement.value = tabData.title;
-if (tabData.icon && iconElement) iconElement.value = tabData.icon;
-
 var settingsDefaultTab = {
   title: "Google",
   icon: "/img/favicon.ico",
@@ -51,6 +45,9 @@ function setTitle(title = "") {
   } else {
     document.title = settingsDefaultTab.title;
   }
+
+  var titleElement = document.getElementById("title");
+  if (titleElement) titleElement.value = title;
 
   var tab = localStorage.getItem("tab");
 
@@ -79,6 +76,9 @@ function setFavicon(icon) {
   } else {
     document.querySelector("link[rel='icon']").href = settingsDefaultTab.icon;
   }
+
+  var iconElement = document.getElementById("icon");
+  if (iconElement) iconElement.value = icon;
 
   var tab = localStorage.getItem("tab");
 
@@ -164,8 +164,8 @@ function setCloak() {
   }
 }
 function resetTab() {
-  document.title = "Dashboard";
-  document.querySelector("link[rel='icon']").href = "/img/favicon.ico";
+  document.title = settingsDefaultTab.title;
+  document.querySelector("link[rel='icon']").href = settingsDefaultTab.icon;
   document.getElementById("title").value = "";
   document.getElementById("icon").value = "";
   localStorage.setItem("tab", JSON.stringify({}));
@@ -177,6 +177,11 @@ var panicLink = localStorage.getItem("PanicLink") || "https://google.com/";
 var toggled = localStorage.getItem("aboutBlank") || "false";
 
 document.addEventListener("DOMContentLoaded", function () {
+  var titleElement = document.getElementById("title");
+  var iconElement = document.getElementById("icon");
+  if (tabData.title && titleElement) titleElement.value = tabData.title;
+  if (tabData.icon && iconElement) iconElement.value = tabData.icon;
+
   document.getElementById("key").value = panicKey;
   document.getElementById("link").value = panicLink;
   cloakElement = document.getElementById("premadecloaks");
@@ -251,7 +256,7 @@ function cloak() {
       doc.body.appendChild(iframe);
 
       const pLink =
-        localStorage.getItem(encodeURI("pLink")) || "https://google.com";
+        localStorage.getItem("PanicLink") || "https://google.com";
       location.replace(pLink);
 
       const script = doc.createElement("script");

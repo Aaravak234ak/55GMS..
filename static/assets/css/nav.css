@@ -1,70 +1,107 @@
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
+
 .navbar {
+  position: relative;
   box-sizing: border-box;
-  background: var(--site-surface-2, #5e7594);
-  box-shadow: 0 0 15px 2px rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  transition: 0.35s ease;
-  border-radius: 20px;
-  width: fill;
-  margin: 15px 20px;
-  z-index: 100;
-  position: static;
-  padding: 10px;
   display: flex;
   align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 66px;
+  margin: 15px 20px;
+  padding: 10px 128px;
   overflow: hidden;
-}
-.navbar a {
-  font-family: "Roboto", serif;
   color: var(--site-text, #fff);
+  background: var(--site-surface-2, #5e7594);
+  border: 1px solid var(--site-border, #353d49);
+  border-radius: 8px;
+  box-shadow: none;
+  transition: border-color 0.2s ease;
+  z-index: 100;
+}
+
+.navbar a {
+  color: var(--site-text, #fff);
+  font-family: "Roboto", serif;
+  text-decoration: none;
 }
 
 .navbar a:not(:first-child) {
-  padding: 10px 15px;
-  font-size: 16px;
-  font-weight: 500;
+  padding: 10px 13px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 700;
   text-transform: uppercase;
-  border-radius: 2px;
-  transition: all 0.2s ease;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
+
 .navbar a:not(:first-child):hover {
-  font-size: 18px;
   color: var(--site-accent-text, #484c51);
-  background-color: var(--site-accent-hover, #e7928f);
-  border-radius: 10px;
-  scale: 1.05;
+  background: var(--site-accent-hover, #e7928f);
 }
 
 .navbar a:first-child {
-  padding: 10px 25px;
-  font-size: 26px;
-  font-weight: 650;
-  margin-right: auto;
-  border-radius: 2px;
-  transition: all 0.3s ease;
+  position: absolute;
+  left: 10px;
+  max-width: min(24vw, 320px);
+  padding: 10px 14px;
+  overflow: hidden;
+  border-radius: 6px;
+  font-size: 20px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
 }
+
 .navbar a:first-child:hover {
-  transform: translateX(10px);
   color: var(--site-accent-text, #484c51);
-  background-color: var(--site-accent-hover, #e7928f);
-  border-radius: 10px;
-  scale: 1.1;
+  background: var(--site-accent-hover, #e7928f);
 }
 
-@media only screen and (max-width: 600px) {
-  nav {
-    flex-direction: column;
-    text-align: center;
+.navbar a:nth-last-child(2),
+.navbar a:last-child {
+  position: absolute;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  padding: 0;
+  place-items: center;
+}
+
+.navbar a:nth-last-child(2) {
+  right: 58px;
+}
+
+.navbar a:last-child {
+  right: 10px;
+}
+
+@media only screen and (max-width: 860px) {
+  .navbar {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 6px;
+    min-height: auto;
+    padding: 10px;
   }
 
-  nav ul {
-    flex-direction: column;
-    padding-top: 0.5rem;
+  .navbar a:first-child,
+  .navbar a:nth-last-child(2),
+  .navbar a:last-child {
+    position: static;
+    width: auto;
+    height: auto;
+    max-width: none;
+    padding: 10px 12px;
   }
 
-  nav li {
-    padding: 0.5rem 0;
+  .navbar a:first-child {
+    flex-basis: 100%;
+    font-size: 19px;
+  }
+
+  .navbar a:not(:first-child) {
+    font-size: 13px;
   }
 }
