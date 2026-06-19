@@ -12,17 +12,15 @@
   text-decoration: none;
   display: inline-block;
   font-size: 16px;
-  border-radius: 10px;
+  border-radius: var(--site-radius-sm, 10px);
   transition: all 0.1s ease;
   transform: scale(1);
 }
 #btnn:hover {
   transform: scale(1.1);
-  border-radius: 5px;
 }
 #btnn:active {
   transform: scale(0.9);
-  border-radius: 12px;
 }
 
 .btnn {
@@ -37,17 +35,15 @@
   text-decoration: none;
   display: inline-block;
   font-size: 16px;
-  border-radius: 10px;
+  border-radius: var(--site-radius-sm, 10px);
   transition: all 0.1s ease;
   transform: scale(1);
 }
 .btnn:hover {
   transform: scale(1.1);
-  border-radius: 5px;
 }
 .btnn:active {
   transform: scale(0.9);
-  border-radius: 12px;
 }
 
 @keyframes pulse {

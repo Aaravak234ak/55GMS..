@@ -8,14 +8,20 @@ function script(text) {
 
 (function applySavedTheme() {
   const allowedThemes = new Set([
-    "classic",
+    "blue",
+    "legacy",
     "midnight",
     "forest",
     "sunset",
     "contrast",
   ]);
-  const savedTheme = localStorage.getItem("siteTheme") || "classic";
-  const theme = allowedThemes.has(savedTheme) ? savedTheme : "classic";
+  const savedTheme = localStorage.getItem("siteTheme") || "blue";
+  const theme =
+    savedTheme === "classic"
+      ? "legacy"
+      : allowedThemes.has(savedTheme)
+        ? savedTheme
+        : "blue";
   document.documentElement.dataset.theme = theme;
 })();
 

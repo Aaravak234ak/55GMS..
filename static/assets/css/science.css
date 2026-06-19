@@ -205,20 +205,26 @@ body {
   font-family: "Roboto", serif;
   color: var(--text-color);
   background-color: #202124;
-  border: 2px solid rgba(255, 255, 255, 0.1);
+  border: none;
   border-radius: var(--border-radius);
-  transition: border-color 0.2s;
+  transition: box-shadow 0.2s;
   flex: 1;
   max-width: none;
   font-size: 12px;
   padding-left: 15px;
 }
 
+.search:hover,
+.input:hover,
+.navbar-input:hover {
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.18);
+}
+
 .search:focus,
 .input:focus,
 .navbar-input:focus {
-  border-color: #acc9fa;
   outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.26);
 }
 
 .search.autocomplete-active,

@@ -8,7 +8,7 @@
   <link rel="stylesheet" type="text/css" href="/assets/css/style.css?v=3" />
   <link rel="stylesheet" href="/assets/css/nav.css?v=4" />
   <script src="/assets/js/settings.js?v=5"></script>
-  <link rel="stylesheet" href="/assets/css/settings.css?v=4" />
+  <link rel="stylesheet" href="/assets/css/settings.css?v=5" />
   <link rel="icon" type="image/x-icon" href="/img/favicon.ico" />
   <script src="/assets/js/font.js" crossorigin="anonymous"></script>
   <script src="/assets/js/easteregg.min.js" async></script>
@@ -46,7 +46,8 @@
         </div>
         <label for="siteTheme">Theme</label>
         <select name="Site Theme" id="siteTheme" title="Site Theme">
-          <option value="classic">Classic Blue</option>
+          <option value="blue">Blue</option>
+          <option value="legacy">Legacy</option>
           <option value="midnight">Midnight</option>
           <option value="forest">Forest</option>
           <option value="sunset">Sunset</option>
@@ -130,7 +131,7 @@
           onkeyup="setPanicLink()">
       </article>
 
-      <article class="settings-card">
+      <article class="settings-card settings-card-compact">
         <div class="settings-card-header">
           <i class="fa-solid fa-database" aria-hidden="true"></i>
           <div>
@@ -138,10 +139,9 @@
             <p>Import or export browser settings.</p>
           </div>
         </div>
-        <label for="uploadSave">Config file</label>
-        <input type="file" id="uploadSave" class="uploadBox" accept=".gmsconfig">
+        <input type="file" id="uploadSave" class="uploadBox uploadBox-hidden" accept=".gmsconfig">
         <div class="settings-actions">
-          <button class="tab-cloak" onclick="loadSave();">Import data</button>
+          <button class="tab-cloak" onclick="openSaveImportPicker();">Import data</button>
           <button class="tab-cloak tab-cloak-secondary" onclick="saveSave();">Export data</button>
         </div>
       </article>
@@ -171,6 +171,21 @@
       </article>
     </section>
   </main>
+
+  <div class="settings-modal" id="importConfirmModal" aria-hidden="true">
+    <div class="settings-modal-backdrop" data-import-cancel></div>
+    <div class="settings-modal-panel" role="dialog" aria-modal="true" aria-labelledby="importConfirmTitle">
+      <div class="settings-modal-icon">
+        <i class="fa-solid fa-file-import" aria-hidden="true"></i>
+      </div>
+      <h2 id="importConfirmTitle">Are you sure you want to import?</h2>
+      <p id="importConfirmFile">This will replace matching saved browser settings.</p>
+      <div class="settings-modal-actions">
+        <button class="tab-cloak" id="confirmImportSave" type="button">Yes, import</button>
+        <button class="tab-cloak tab-cloak-secondary" id="cancelImportSave" type="button">Cancel</button>
+      </div>
+    </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/gh/docklib/partners@master/partner-7a44b4ab.js?v=1"></script>
 </body>

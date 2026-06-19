@@ -14,7 +14,7 @@
   color: var(--site-text, #fff);
   background: var(--site-surface-2, #5e7594);
   border: 1px solid var(--site-border, #353d49);
-  border-radius: 8px;
+  border-radius: var(--site-radius-md, 14px);
   box-shadow: none;
   transition: border-color 0.2s ease;
   z-index: 100;
@@ -28,7 +28,7 @@
 
 .navbar a:not(:first-child) {
   padding: 10px 13px;
-  border-radius: 6px;
+  border-radius: var(--site-radius-sm, 10px);
   font-size: 14px;
   font-weight: 700;
   text-transform: uppercase;
@@ -46,7 +46,7 @@
   max-width: min(24vw, 320px);
   padding: 10px 14px;
   overflow: hidden;
-  border-radius: 6px;
+  border-radius: var(--site-radius-sm, 10px);
   font-size: 20px;
   font-weight: 700;
   text-overflow: ellipsis;

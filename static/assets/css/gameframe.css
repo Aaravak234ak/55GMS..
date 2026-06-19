@@ -9,7 +9,7 @@
   width: 72.5vw;
   height: 38.5vw;
   background-color: var(--site-border, #353d49);
-  border-radius: 0.5vw;
+  border-radius: var(--site-radius-md, 14px);
   overflow: hidden;
 }
 #gameframe .game {
@@ -49,7 +49,7 @@
   width: 16vw;
   height: 32vw;
   background-color: var(--site-surface-2, #3d4756);
-  border-radius: 0.5vw;
+  border-radius: var(--site-radius-md, 14px);
   display: flex;
   margin-top: -42.5vw;
   margin-bottom: -5vw;
@@ -60,7 +60,7 @@
 .gameicon {
   margin-left: 0.6vw;
   margin-top: 1.9vw;
-  border-radius: 0.5vw;
+  border-radius: var(--site-radius-sm, 10px);
   background: var(--site-button, #19191b);
   width: 2.6vw;
   height: 2.6vw;
@@ -124,7 +124,7 @@
   height: 70%;
 }
 .fullscreenbtn {
-  border-radius: 0.3vw;
+  border-radius: var(--site-radius-sm, 10px);
   font-size: 1.6vw;
   cursor: pointer;
   transition: transform 0.3s ease-in-out;
@@ -148,7 +148,7 @@
   height: auto;
   aspect-ratio: 730 / 90;
   background-color: var(--site-surface-2, #3d4756);
-  border-radius: 0.3vw;
+  border-radius: var(--site-radius-sm, 10px);
   display: flex;
   margin: 20px auto;
   outline: 0.2vw solid color-mix(in srgb, var(--site-border, #ffffff) 45%, transparent);
@@ -169,7 +169,7 @@
   width: 728px !important;
   height: 90px !important;
   border: none;
-  border-radius: 0.3vw;
+  border-radius: var(--site-radius-sm, 10px);
   zoom: calc(31.25vw / 728px);
   max-width: none;
   max-height: none;

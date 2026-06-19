@@ -1,7 +1,9 @@
 var cloakElement;
+var pendingImportFile = null;
 
 var siteThemes = {
-  classic: "Classic Blue",
+  blue: "Blue",
+  legacy: "Legacy",
   midnight: "Midnight",
   forest: "Forest",
   sunset: "Sunset",
@@ -9,7 +11,8 @@ var siteThemes = {
 };
 
 function getSafeTheme(theme) {
-  return siteThemes[theme] ? theme : "classic";
+  if (theme === "classic") return "legacy";
+  return siteThemes[theme] ? theme : "blue";
 }
 
 function setSiteTheme(theme) {
@@ -19,7 +22,7 @@ function setSiteTheme(theme) {
 }
 
 (function applySavedTheme() {
-  var savedTheme = localStorage.getItem("siteTheme") || "classic";
+  var savedTheme = localStorage.getItem("siteTheme") || "blue";
   document.documentElement.dataset.theme = getSafeTheme(savedTheme);
 })();
 
@@ -208,6 +211,8 @@ document.addEventListener("DOMContentLoaded", function () {
       toggle.checked = false;
     }
   });
+
+  setupImportDialog();
 });
 
 function setPanicKey() {
@@ -287,18 +292,112 @@ function saveSave() {
   URL.revokeObjectURL(url);
 }
 
+function setupImportDialog() {
+  var input = document.getElementById("uploadSave");
+  var confirmButton = document.getElementById("confirmImportSave");
+  var cancelButton = document.getElementById("cancelImportSave");
+
+  if (input) {
+    input.addEventListener("change", function () {
+      pendingImportFile = input.files[0] || null;
+
+      if (pendingImportFile) {
+        showImportConfirm(pendingImportFile);
+      }
+    });
+  }
+
+  if (confirmButton) {
+    confirmButton.addEventListener("click", function () {
+      loadSave();
+    });
+  }
+
+  if (cancelButton) {
+    cancelButton.addEventListener("click", closeImportConfirm);
+  }
+
+  document.querySelectorAll("[data-import-cancel]").forEach(function (element) {
+    element.addEventListener("click", closeImportConfirm);
+  });
+
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+      closeImportConfirm();
+    }
+  });
+}
+
+function openSaveImportPicker() {
+  var input = document.getElementById("uploadSave");
+
+  if (input) {
+    input.value = "";
+    input.click();
+  }
+}
+
+function showImportConfirm(file) {
+  var modal = document.getElementById("importConfirmModal");
+  var fileText = document.getElementById("importConfirmFile");
+  var confirmButton = document.getElementById("confirmImportSave");
+
+  if (fileText) {
+    fileText.textContent =
+      'Import "' + file.name + '" and replace matching saved browser settings?';
+  }
+
+  if (modal) {
+    modal.classList.add("settings-modal-open");
+    modal.setAttribute("aria-hidden", "false");
+  }
+
+  if (confirmButton) {
+    confirmButton.focus();
+  }
+}
+
+function closeImportConfirm() {
+  var modal = document.getElementById("importConfirmModal");
+  var input = document.getElementById("uploadSave");
+
+  pendingImportFile = null;
+
+  if (input) {
+    input.value = "";
+  }
+
+  if (modal) {
+    modal.classList.remove("settings-modal-open");
+    modal.setAttribute("aria-hidden", "true");
+  }
+}
+
 function loadSave() {
   var input = document.getElementById("uploadSave");
-  var file = input.files[0];
+  var file = pendingImportFile || (input && input.files[0]);
+
+  if (!file) {
+    openSaveImportPicker();
+    return;
+  }
+
   var reader = new FileReader();
   reader.readAsText(file);
   reader.onload = function () {
-    var data = JSON.parse(reader.result);
-    for (var key in data) {
-      localStorage.setItem(key, data[key]);
+    try {
+      var data = JSON.parse(reader.result);
+      for (var key in data) {
+        localStorage.setItem(key, data[key]);
+      }
+      closeImportConfirm();
+      alert("Save Loaded!");
+    } catch (error) {
+      alert("That save file could not be imported.");
     }
-    alert("Save Loaded!");
-    input.value = "";
+  };
+  reader.onerror = function () {
+    alert("That save file could not be read.");
   };
 }
 var months = [
