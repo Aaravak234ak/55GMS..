@@ -7,7 +7,7 @@
     <meta name="google" content="notranslate" />
     <link rel="stylesheet" type="text/css" href="/assets/css/style.css?v=3" />
     <link rel="stylesheet" href="/assets/css/nav.css?v=4" />
-    <link rel="stylesheet" href="/assets/css/chat.css?v=2" />
+    <link rel="stylesheet" href="/assets/css/chat.css?v=3" />
     <title>Google</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="author" content="Rednotsus" />
@@ -19,7 +19,7 @@
     <script src="/assets/js/easteregg.min.js" async></script>
 </head>
 
-<body>
+<body class="chat-page">
     <nav>
         <div class="navbar">
             <a id="nav-title" href="/">Reds Exploit Corner</a>
@@ -222,12 +222,11 @@
                             <input type="text" id="groupName" placeholder="Enter group name..." autocomplete="off" />
                         </div>
                         <div class="form-group">
-                            <label>Add Members: <span id="memberCount"
-                                    style="color: #888; font-size: 12px;">(0/9)</span></label>
+                            <label>Add Members: <span id="memberCount">(0/9)</span></label>
                             <div id="membersList"></div>
                             <input type="text" id="addMemberInput" placeholder="Enter username and press Enter..."
                                 autocomplete="off" />
-                            <div style="font-size: 12px; color: #888; margin-top: 5px;">
+                            <div class="field-hint">
                                 Maximum 10 people total (including yourself)
                             </div>
                         </div>
@@ -258,7 +257,7 @@
     <!-- Notification Container -->
     <div id="notificationContainer" class="notification-container"></div>
 
-    <script src="/assets/js/chat.js?v=1"></script>
+    <script src="/assets/js/chat.js?v=2"></script>
     <script>
         // Check authentication
         const uuid = localStorage.getItem('uuid');

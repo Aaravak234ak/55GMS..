@@ -8,7 +8,7 @@ let typingTimeout = null;
 let isTyping = false;
 
 // Initialize chat system
-function initializeChat() {
+async function initializeChat() {
   currentUser = {
     uuid: localStorage.getItem("uuid"),
     username: localStorage.getItem("username"),
@@ -22,17 +22,17 @@ function initializeChat() {
   // Initialize Socket.IO
   initializeSocket();
 
-  // Load initial data
-  loadChats();
-  loadFriends();
-  loadFriendRequests();
-  loadBlockedUsers();
+  // Setup event listeners
+  setupEventListeners();
 
   // Initialize user info bar
   initializeUserInfoBar();
 
-  // Setup event listeners
-  setupEventListeners();
+  // Load initial data before resolving /chat/:chatId deep links.
+  await loadChats();
+  loadFriends();
+  loadFriendRequests();
+  loadBlockedUsers();
 
   // Handle page unload to stop viewing chat
   window.addEventListener("beforeunload", () => {
@@ -41,13 +41,10 @@ function initializeChat() {
     }
   });
 
-  // Check for specific chat in URL
-  const pathParts = window.location.pathname.split("/");
-  if (pathParts[1] === "chat" && pathParts[2]) {
-    const chatId = pathParts[2];
-    // Wait a bit for chats to load, then select the chat
-    setTimeout(() => selectChat(chatId), 1000);
-  }
+  handleChatRoute({ updateHistory: false });
+  window.addEventListener("popstate", () => {
+    handleChatRoute({ updateHistory: false });
+  });
 
   // Periodically check for new friend requests to update the notification badge
   setInterval(() => {
@@ -80,7 +77,7 @@ function initializeSocket() {
   });
 
   socket.on("new_message", (data) => {
-    if (data.chatId === currentChatId) {
+    if (isSameChatId(data.chatId, currentChatId)) {
       appendMessage(data);
       scrollToBottom();
     }
@@ -89,7 +86,7 @@ function initializeSocket() {
     updateChatInList(data.chatId, data);
 
     // Show notification if not currently viewing this chat
-    if (data.chatId !== currentChatId) {
+    if (!isSameChatId(data.chatId, currentChatId)) {
       showNotification("New Message", data.content, () => {
         selectChat(data.chatId);
       });
@@ -97,7 +94,10 @@ function initializeSocket() {
   });
 
   socket.on("user_typing", (data) => {
-    if (data.chatId === currentChatId && data.userUuid !== currentUser.uuid) {
+    if (
+      isSameChatId(data.chatId, currentChatId) &&
+      data.userUuid !== currentUser.uuid
+    ) {
       showTypingIndicator(data.userUuid, data.isTyping);
     }
   });
@@ -310,6 +310,78 @@ function setupTabSwitching() {
   });
 }
 
+function getRouteChatId() {
+  const pathParts = window.location.pathname.split("/").filter(Boolean);
+  if (pathParts[0] !== "chat" || !pathParts[1]) {
+    return null;
+  }
+  return decodeURIComponent(pathParts[1]);
+}
+
+function userHasChat(chatId) {
+  return chats.some((chat) => isSameChatId(chat.id, chatId));
+}
+
+function isSameChatId(firstChatId, secondChatId) {
+  return String(firstChatId) === String(secondChatId);
+}
+
+async function handleChatRoute({ updateHistory = false } = {}) {
+  const routeChatId = getRouteChatId();
+
+  if (!routeChatId) {
+    showChatWelcome({ updateHistory });
+    return;
+  }
+
+  if (!userHasChat(routeChatId)) {
+    showChatWelcome({ updateHistory: false });
+    return;
+  }
+
+  await selectChat(routeChatId, { updateHistory });
+}
+
+function showChatWelcome({ updateHistory = true } = {}) {
+  if (currentChatId && socket) {
+    socket.emit("leave_chat", currentChatId);
+    socket.emit("stop_viewing_chat");
+  }
+
+  currentChatId = null;
+  document.querySelectorAll(".chat-item").forEach((item) => {
+    item.classList.remove("active");
+  });
+
+  const messages = document.getElementById("messages");
+  if (messages) {
+    messages.innerHTML = "";
+  }
+
+  document.getElementById("chatWelcome").style.display = "flex";
+  document.getElementById("chatContent").style.display = "none";
+
+  if (updateHistory && window.location.pathname !== "/chat") {
+    history.pushState(null, "", "/chat");
+  }
+}
+
+function getThemeColor(variableName, fallback) {
+  const value = getComputedStyle(document.documentElement)
+    .getPropertyValue(variableName)
+    .trim();
+  return value || fallback;
+}
+
+function getAlertButtonColors(intent = "primary") {
+  const accent = getThemeColor("--site-accent", "#3b82f6");
+  const danger = getThemeColor("--chat-danger", "#ef4444");
+
+  return intent === "danger"
+    ? { confirmButtonColor: danger, cancelButtonColor: accent }
+    : { confirmButtonColor: accent, cancelButtonColor: danger };
+}
+
 // Load user's chats
 async function loadChats() {
   try {
@@ -322,12 +394,14 @@ async function loadChats() {
     if (response.ok) {
       chats = await response.json();
       renderChatList();
+      return chats;
     } else {
       console.error("Failed to load chats");
     }
   } catch (error) {
     console.error("Error loading chats:", error);
   }
+  return [];
 }
 
 // Render chat list
@@ -356,7 +430,7 @@ function renderChatList() {
         : "No messages yet";
 
       // Check if this chat is currently active
-      const isActive = chat.id === currentChatId;
+      const isActive = isSameChatId(chat.id, currentChatId);
 
       return `
             <div class="chat-item ${isActive ? "active" : ""}" data-chat-id="${
@@ -401,8 +475,8 @@ function renderChatList() {
 }
 
 // Select and load a chat
-async function selectChat(chatId) {
-  if (currentChatId === chatId) return;
+async function selectChat(chatId, { updateHistory = true } = {}) {
+  if (isSameChatId(currentChatId, chatId)) return;
 
   // Stop viewing previous chat
   if (currentChatId) {
@@ -417,12 +491,15 @@ async function selectChat(chatId) {
   socket.emit("viewing_chat", chatId);
 
   // Update URL
-  history.pushState(null, "", `/chat/${chatId}`);
+  const chatPath = `/chat/${encodeURIComponent(chatId)}`;
+  if (updateHistory && window.location.pathname !== chatPath) {
+    history.pushState(null, "", chatPath);
+  }
 
   // Update active chat in sidebar
   document.querySelectorAll(".chat-item").forEach((item) => {
     item.classList.remove("active");
-    if (item.dataset.chatId === chatId) {
+    if (isSameChatId(item.dataset.chatId, chatId)) {
       item.classList.add("active");
     }
   });
@@ -438,7 +515,7 @@ async function selectChat(chatId) {
   document.getElementById("chatContent").style.display = "flex";
 
   // Update chat header
-  const chat = chats.find((c) => c.id === chatId);
+  const chat = chats.find((c) => isSameChatId(c.id, chatId));
   if (chat) {
     document.getElementById("chatName").textContent = chat.name;
     document.getElementById("chatInitials").textContent = chat.name
@@ -452,6 +529,7 @@ async function selectChat(chatId) {
     if (chat.type === "direct" && chat.members.length > 0) {
       const isOnline = chat.members[0].isOnline;
       statusElement.textContent = isOnline ? "Online" : "Offline";
+      onlineIndicator.style.display = "block";
       onlineIndicator.className = `online-indicator ${
         isOnline ? "" : "offline"
       }`;
@@ -772,7 +850,7 @@ function showTypingIndicator(userUuid, isTyping) {
 
   if (isTyping) {
     // Get username for the typing user
-    const chat = chats.find((c) => c.id === currentChatId);
+    const chat = chats.find((c) => isSameChatId(c.id, currentChatId));
     let username = "Someone";
 
     if (chat && chat.members) {
@@ -991,14 +1069,13 @@ function updateMemberCounter() {
   const counterElement = document.getElementById("memberCount");
   if (counterElement) {
     counterElement.textContent = `(${memberCount}/9)`;
+    counterElement.classList.remove("is-warning", "is-danger");
 
     // Change color based on limit
     if (memberCount >= 9) {
-      counterElement.style.color = "#ff6b6b";
+      counterElement.classList.add("is-danger");
     } else if (memberCount >= 7) {
-      counterElement.style.color = "#ffa726";
-    } else {
-      counterElement.style.color = "#888";
+      counterElement.classList.add("is-warning");
     }
   }
 }
@@ -1045,7 +1122,7 @@ function renderFriendsList() {
                 </div>
                 <div>
                     <div style="font-weight: 600;">${friend.username}</div>
-                    <div style="font-size: 12px; color: #888;">
+                    <div class="friend-meta">
                         ${
                           friend.isOnline
                             ? "Online"
@@ -1196,7 +1273,7 @@ function renderFriendRequests(requests) {
                     <div style="font-weight: 600;">${
                       request.requesterUsername
                     }</div>
-                    <div style="font-size: 12px; color: #888;">
+                    <div class="friend-meta">
                         ${formatTime(request.createdAt)}
                     </div>
                 </div>
@@ -1312,7 +1389,7 @@ function updateUserStatus(userUuid, isOnline) {
 
   // Update current chat if it's a direct message with this user
   if (currentChatId) {
-    const currentChat = chats.find((c) => c.id === currentChatId);
+    const currentChat = chats.find((c) => isSameChatId(c.id, currentChatId));
     if (
       currentChat &&
       currentChat.type === "direct" &&
@@ -1332,7 +1409,7 @@ function updateUserStatus(userUuid, isOnline) {
 
 // Clear unread count for a specific chat
 function clearUnreadCount(chatId) {
-  const chatIndex = chats.findIndex((c) => c.id === chatId);
+  const chatIndex = chats.findIndex((c) => isSameChatId(c.id, chatId));
   if (chatIndex !== -1) {
     chats[chatIndex].unreadCount = 0;
 
@@ -1349,7 +1426,7 @@ function clearUnreadCount(chatId) {
 
 // Update chat in list with new message
 function updateChatInList(chatId, messageData) {
-  const chatIndex = chats.findIndex((c) => c.id === chatId);
+  const chatIndex = chats.findIndex((c) => isSameChatId(c.id, chatId));
   if (chatIndex !== -1) {
     // Ensure the message data has the correct timestamp properties
     const normalizedMessage = {
@@ -1363,7 +1440,7 @@ function updateChatInList(chatId, messageData) {
 
     // Increment unread count if this chat is not currently active and message is not from current user
     if (
-      chatId !== currentChatId &&
+      !isSameChatId(chatId, currentChatId) &&
       messageData.senderUuid !== currentUser.uuid
     ) {
       chats[chatIndex].unreadCount = (chats[chatIndex].unreadCount || 0) + 1;
@@ -1400,86 +1477,6 @@ function filterChats() {
 
 function showNotification(title, message, onClick) {
   console.log("Chat showNotification called:", { title, message });
-
-  // Initialize notification system if not already done
-  if (!document.getElementById("notification-styles")) {
-    console.log("Initializing notification styles...");
-    const style = document.createElement("style");
-    style.id = "notification-styles";
-    style.textContent = `
-      .notification-container {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 10000;
-        max-width: 350px;
-      }
-
-      .notification {
-        background: #2c2c2c;
-        border: 1px solid #444;
-        border-radius: 8px;
-        padding: 12px 16px;
-        margin-bottom: 10px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        color: #fff;
-        animation: notificationSlideIn 0.3s ease;
-        cursor: pointer;
-        transition: transform 0.2s ease;
-      }
-
-      .notification:hover {
-        transform: translateX(-5px);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-      }
-
-      @keyframes notificationSlideIn {
-        from {
-          transform: translateX(100%);
-          opacity: 0;
-        }
-        to {
-          transform: translateX(0);
-          opacity: 1;
-        }
-      }
-
-      .notification-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 8px;
-      }
-
-      .notification-title {
-        font-weight: 600;
-        font-size: 14px;
-        color: #fff;
-      }
-
-      .notification-time {
-        font-size: 12px;
-        color: #aaa;
-      }
-
-      .notification-message {
-        font-size: 13px;
-        color: #ddd;
-        line-height: 1.4;
-      }
-
-      @media (max-width: 768px) {
-        .notification-container {
-          top: 10px;
-          right: 10px;
-          left: 10px;
-          max-width: none;
-        }
-      }
-    `;
-    document.head.appendChild(style);
-    console.log("Notification styles added");
-  }
 
   // Create notification container if not already present
   let container = document.getElementById("notificationContainer");
@@ -1528,14 +1525,13 @@ function updateCharacterCounter() {
   if (messageInput && charCount) {
     const currentLength = messageInput.value.length;
     charCount.textContent = currentLength;
+    charCount.classList.remove("is-warning", "is-danger");
 
     // Change color based on character limit
     if (currentLength > 1800) {
-      charCount.style.color = "#e74c3c"; // Red when approaching limit
+      charCount.classList.add("is-danger");
     } else if (currentLength > 1500) {
-      charCount.style.color = "#f39c12"; // Orange when getting close
-    } else {
-      charCount.style.color = "#95a5a6"; // Default gray
+      charCount.classList.add("is-warning");
     }
   }
 }
@@ -1554,10 +1550,6 @@ function scrollToBottom() {
     container.scrollTop = container.scrollHeight;
   }, 0);
 }
-
-document.addEventListener("DOMContentLoaded", () => {
-  // Browser notification permissions removed - using in-page notifications only
-});
 
 // Test function for chat notifications (can be called from browser console)
 function testChatNotification() {
@@ -1591,11 +1583,11 @@ function copyUsername() {
       const copyBtn = document.getElementById("copyUsernameBtn");
       const originalIcon = copyBtn.innerHTML;
       copyBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
-      copyBtn.style.background = "#4caf50";
+      copyBtn.classList.add("is-copied");
 
       setTimeout(() => {
         copyBtn.innerHTML = originalIcon;
-        copyBtn.style.background = "#353d49";
+        copyBtn.classList.remove("is-copied");
       }, 1000);
     })
     .catch((err) => {
@@ -1617,7 +1609,7 @@ function toggleChatMenu(e) {
 async function updateChatMenuOptions() {
   if (!currentChatId) return;
 
-  const currentChat = chats.find((c) => c.id === currentChatId);
+  const currentChat = chats.find((c) => isSameChatId(c.id, currentChatId));
   if (!currentChat) return;
 
   // Handle direct chats
@@ -1681,7 +1673,7 @@ async function updateChatMenuOptions() {
 async function handleAddFriend() {
   if (!currentChatId) return;
 
-  const currentChat = chats.find((c) => c.id === currentChatId);
+  const currentChat = chats.find((c) => isSameChatId(c.id, currentChatId));
   if (!currentChat || currentChat.type !== "direct") return;
 
   const otherUser = currentChat.members[0];
@@ -1724,7 +1716,7 @@ async function handleAddFriend() {
 async function handleRemoveFriend() {
   if (!currentChatId) return;
 
-  const currentChat = chats.find((c) => c.id === currentChatId);
+  const currentChat = chats.find((c) => isSameChatId(c.id, currentChatId));
   if (!currentChat || currentChat.type !== "direct") return;
 
   const otherUser = currentChat.members[0];
@@ -1735,8 +1727,7 @@ async function handleRemoveFriend() {
     text: `Are you sure you want to remove ${otherUser.username} from your friends?`,
     icon: "warning",
     showCancelButton: true,
-    confirmButtonColor: "#d33",
-    cancelButtonColor: "#3085d6",
+    ...getAlertButtonColors("danger"),
     confirmButtonText: "Yes, remove",
   });
 
@@ -1758,7 +1749,7 @@ async function handleRemoveFriend() {
 async function handleLeaveGroup() {
   if (!currentChatId) return;
 
-  const currentChat = chats.find((c) => c.id === currentChatId);
+  const currentChat = chats.find((c) => isSameChatId(c.id, currentChatId));
   if (!currentChat || currentChat.type !== "group") return;
 
   const result = await Swal.fire({
@@ -1766,8 +1757,7 @@ async function handleLeaveGroup() {
     text: `Are you sure you want to leave "${currentChat.name}"?`,
     icon: "warning",
     showCancelButton: true,
-    confirmButtonColor: "#d33",
-    cancelButtonColor: "#3085d6",
+    ...getAlertButtonColors("danger"),
     confirmButtonText: "Yes, leave group",
     cancelButtonText: "Cancel",
   });
@@ -1788,18 +1778,13 @@ async function handleLeaveGroup() {
         socket.emit("leave_chat", currentChatId);
 
         // Remove chat from local list
-        chats = chats.filter((chat) => chat.id !== currentChatId);
+        chats = chats.filter((chat) => !isSameChatId(chat.id, currentChatId));
 
         // Update UI
         renderChatList();
 
-        // Show welcome screen
-        document.getElementById("chatWelcome").style.display = "flex";
-        document.getElementById("chatContent").style.display = "none";
-        currentChatId = null;
-
-        // Update URL
-        history.pushState(null, "", "/chat");
+        // Show welcome screen and update URL
+        showChatWelcome();
 
         Swal.fire({
           icon: "success",
@@ -1829,7 +1814,7 @@ async function handleLeaveGroup() {
 async function handleBlockUser() {
   if (!currentChatId) return;
 
-  const currentChat = chats.find((c) => c.id === currentChatId);
+  const currentChat = chats.find((c) => isSameChatId(c.id, currentChatId));
   if (!currentChat || currentChat.type !== "direct") return;
 
   const otherUser = currentChat.members[0];
@@ -1840,8 +1825,7 @@ async function handleBlockUser() {
     text: `Are you sure you want to block ${otherUser.username}? You will not be able to receive messages from them.`,
     icon: "warning",
     showCancelButton: true,
-    confirmButtonColor: "#d33",
-    cancelButtonColor: "#3085d6",
+    ...getAlertButtonColors("danger"),
     confirmButtonText: "Yes, block user",
   });
 
@@ -1900,7 +1884,7 @@ async function handleBlockUser() {
 async function handleUnblockUser() {
   if (!currentChatId) return;
 
-  const currentChat = chats.find((c) => c.id === currentChatId);
+  const currentChat = chats.find((c) => isSameChatId(c.id, currentChatId));
   if (!currentChat || currentChat.type !== "direct") return;
 
   const otherUser = currentChat.members[0];
@@ -1911,8 +1895,7 @@ async function handleUnblockUser() {
     text: `Are you sure you want to unblock ${otherUser.username}? They will be able to send messages to you again.`,
     icon: "question",
     showCancelButton: true,
-    confirmButtonColor: "#3085d6",
-    cancelButtonColor: "#d33",
+    ...getAlertButtonColors("primary"),
     confirmButtonText: "Yes, unblock user",
   });
 
@@ -2049,8 +2032,7 @@ async function unblockUser(username) {
       text: `Are you sure you want to unblock ${username}?`,
       icon: "question",
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
+      ...getAlertButtonColors("primary"),
       confirmButtonText: "Yes, unblock",
     });
 
@@ -2097,7 +2079,7 @@ async function unblockUser(username) {
 async function handleViewMembers() {
   if (!currentChatId) return;
 
-  const currentChat = chats.find((c) => c.id === currentChatId);
+  const currentChat = chats.find((c) => isSameChatId(c.id, currentChatId));
   if (!currentChat || currentChat.type !== "group") {
     return;
   }
