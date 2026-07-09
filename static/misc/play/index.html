@@ -5,8 +5,16 @@
     <link rel="icon" type="image/x-icon" href="/img/favicon.ico" />
     <script src="/assets/js/font.js"></script>
     <meta name="google" content="notranslate" />
-    <link rel="stylesheet" type="text/css" href="/assets/css/style.css?v=2" />
-    <link rel="stylesheet" href="/assets/css/nav.css?v=3" />
+    <script>
+        (function applySavedTheme() {
+            var allowedThemes = ["blue", "legacy", "midnight", "forest", "sunset", "contrast"];
+            var savedTheme = localStorage.getItem("siteTheme") || "blue";
+            var theme = savedTheme === "classic" ? "legacy" : savedTheme;
+            document.documentElement.dataset.theme = allowedThemes.includes(theme) ? theme : "blue";
+        })();
+    </script>
+    <link rel="stylesheet" type="text/css" href="/assets/css/style.css?v=3" />
+    <link rel="stylesheet" href="/assets/css/nav.css?v=4" />
     <title>Google</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="author" content="Rednotsus" />
@@ -14,7 +22,7 @@
     <meta charset="utf-8">
 
     <link rel="stylesheet" href="/assets/css/gameframe.css?v=4" />
-    <script src="/assets/js/script.js?v=14"></script>
+    <script src="/assets/js/script.js?v=15"></script>
 
 </head>
 
@@ -62,7 +70,7 @@
 
             const title = urlParams.get('title') || 'No title provided';
             const author = urlParams.get('author') || 'Author';
-            const link = urlParams.get('link') || '';
+            const link = (urlParams.get('link') || '').replace(/^\/+|\/+$/g, '');
 
             const titleElement = document.querySelector('.titletext');
             const byTextElement = document.querySelector('.bytext');
@@ -71,8 +79,9 @@
 
             titleElement.textContent = title;
             byTextElement.textContent = 'By ' + author;
-            iframeElement.src = `/misc/misc/frame.html?link=${link}&title=${title}`;
-            gameIconElement.src = '/misc/' + link + '/img.webp';
+            iframeElement.src = `/misc/misc/frame.html?link=${encodeURIComponent(link)}&title=${encodeURIComponent(title)}`;
+            gameIconElement.src = `/misc/${encodeURIComponent(link)}/img.webp`;
+            gameIconElement.alt = title;
         });
     </script>
     <div class="bottom-addisplay" id="bottomAddisplay">

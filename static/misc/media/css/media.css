@@ -52,11 +52,13 @@ body {
 }
 
 .form__input {
-  border-radius: 5px;
-  background: #7a8fab;
-  text-align: center;
+  box-sizing: border-box;
+  padding: 1.2vw;
   width: 50%;
-  padding: 1vw;
+  border-radius: 5px;
+  background: var(--site-input-bg, #2a3a5b);
+  text-align: center;
+  font-family: "Roboto", serif;
   font-size: 24px;
   border: none;
   outline: none;
@@ -66,19 +68,16 @@ body {
 }
 
 .form__input::placeholder {
-  font-family: "Roboto", serif;
-  font-size: 16px;
-  color: #ffffff;
+  color: #aaa;
   text-align: center;
-  opacity: 0.8;
 }
 
+.form__input:hover,
 .form__input:focus {
   outline: none;
-  background: #6f829b;
-  scale: 1.1;
-  transition: 0.3s;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  background: var(--site-search-hover-bg, #3a4a7b);
+  transition: 0.2s;
+  box-shadow: none;
 }
 
 img {

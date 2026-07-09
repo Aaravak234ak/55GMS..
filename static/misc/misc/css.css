@@ -4,8 +4,8 @@ body {
     margin: 0;
     padding: 0;
     font-family: "Boldonse", sans-serif;
-    background-color: #1a1a1a;
-    color: #fff;
+    background-color: var(--site-bg, #0b1220);
+    color: var(--site-text, #e6edf7);
 }
 
 .embed-container {
@@ -13,7 +13,7 @@ body {
     height: 100vh;
     border-radius: 0.5vw;
     overflow: hidden;
-    box-shadow: 0 0.208vw 0.417vw rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0.208vw 0.417vw var(--site-shadow, rgba(0, 0, 0, 0.28));
     position: relative;
 }
 
@@ -34,7 +34,12 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(45deg, #4B5E76, #9cb8dd); 
+    background:
+        linear-gradient(
+            135deg,
+            color-mix(in srgb, var(--site-surface-2, #0f1a2b) 88%, var(--site-bg, #0b1220)),
+            color-mix(in srgb, var(--site-surface, #111d2f) 82%, var(--site-accent, #3b82f6))
+        );
     display: flex;
     align-items: center;
     justify-content: center; 
@@ -52,6 +57,7 @@ body {
     transform: translateY(-50%);
     margin-left: 12vw;
     border-radius: 1.163vw;
+    box-shadow: 0 1.2vw 2.4vw var(--site-shadow, rgba(0, 0, 0, 0.28));
     transition: transform 0.3s ease; 
 }
 
@@ -61,7 +67,7 @@ body {
 
 #overlay .overlay-content {
     margin-left: 18.605vw;
-    color: #fff;
+    color: var(--site-text, #e6edf7);
     text-align: left;
     display: flex;
     flex-direction: column;
@@ -78,8 +84,8 @@ body {
 
 #play-btn {
     position: relative;
-    color: #ffffff;
-    border: 0.3vw solid #fc8585; 
+    color: var(--site-text, #e6edf7);
+    border: 0.3vw solid var(--site-accent, #3b82f6);
     border-radius: 2vw;
     font-size: 2vw;
     padding: 1.2vw 2.8vw;
@@ -88,12 +94,16 @@ body {
     text-transform: uppercase;
     font-weight: 900;
     margin-top: 2vw;
-    background-color: rgb(30, 30, 30);
-    background: linear-gradient(45deg, rgb(30, 30, 30) 50%, #ff6f61 50%);
+    background-color: var(--site-button, #1a314f);
+    background: linear-gradient(
+        45deg,
+        var(--site-button, #1a314f) 50%,
+        var(--site-accent-hover, #60a5fa) 50%
+    );
     background-size: 250% 250%;
     background-position: top left;
     transition: background-position 0.5s ease, transform 0.5s;
-    box-shadow: 0 0 0.5vw rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 0.5vw var(--site-shadow, rgba(0, 0, 0, 0.28));
     height: 7vw;
     width: 20vw;
     margin-left: 6vw;

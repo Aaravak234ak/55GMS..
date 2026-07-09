@@ -21,6 +21,10 @@ const Message = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    senderUsername: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     content: {
       type: DataTypes.TEXT,
       allowNull: false,
@@ -49,7 +53,7 @@ const Message = sequelize.define(
         fields: ["senderUuid"],
       },
     ],
-  }
+  },
 );
 
 export default Message;

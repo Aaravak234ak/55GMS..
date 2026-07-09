@@ -1,9 +1,11 @@
 import axios from "axios";
 import { deleteCacheKeys, getJsonCache, setJsonCache } from "./redisCache.js";
 
-class UserCache {
-  constructor() {
+export class UserCache {
+  constructor(httpClient = axios) {
     this.cache = new Map();
+    this.inFlightByUuid = new Map();
+    this.httpClient = httpClient;
     this.cacheTimeout = 5 * 60 * 1000;
     this.cacheTtlSeconds = Math.floor(this.cacheTimeout / 1000);
     this.maxEntries = 1000;
@@ -45,9 +47,25 @@ class UserCache {
       return cached.data;
     }
 
+    const pendingLookup = this.inFlightByUuid.get(uuid);
+    if (pendingLookup) {
+      return pendingLookup;
+    }
+
+    const lookupPromise = this.fetchAndCacheUserByUuid(uuid, cached).finally(
+      () => {
+        this.inFlightByUuid.delete(uuid);
+      },
+    );
+
+    this.inFlightByUuid.set(uuid, lookupPromise);
+    return lookupPromise;
+  }
+
+  async fetchAndCacheUserByUuid(uuid, cached) {
     try {
       // Fetch from external API
-      const response = await axios.get(
+      const response = await this.httpClient.get(
         `https://db.55gms.com/api/user/${uuid}`,
         {
           headers: {
@@ -113,10 +131,12 @@ class UserCache {
       console.error(`Error invalidating user cache for ${uuid}:`, error);
     });
     this.cache.delete(uuid);
+    this.inFlightByUuid.delete(uuid);
   }
 
   clearCache() {
     this.cache.clear();
+    this.inFlightByUuid.clear();
   }
 
   cleanupExpired() {

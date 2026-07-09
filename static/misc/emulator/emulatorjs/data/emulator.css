@@ -1,4 +1,7 @@
 .ejs_parent {
+    --ejs-background-color: #000;
+    --ejs-background-image: none;
+    --ejs-primary-color: 26, 175, 255;
     background: #000;
     overflow: hidden;
     position: relative;

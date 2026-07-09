@@ -261,3 +261,36 @@ h6 {
     transform: none;
   }
 }
+
+.searchbar {
+  box-sizing: border-box;
+  padding: 1.2vw;
+  width: 50%;
+  border-radius: 5px;
+  background: var(--site-input-bg, #2a3a5b);
+  text-align: center;
+  font-family: "Roboto", serif;
+  font-size: 24px;
+  font-style: normal;
+  border: none;
+  outline: none;
+  color: white;
+  transition: 0.2s;
+  margin: 0 0 20px;
+  box-shadow: none;
+  transform: none;
+}
+
+.searchbar::placeholder {
+  color: #aaa;
+  text-align: center;
+  opacity: 1;
+}
+
+.searchbar:hover,
+.searchbar:focus {
+  background: var(--site-search-hover-bg, #3a4a7b);
+  border: none;
+  box-shadow: none;
+  transform: none;
+}

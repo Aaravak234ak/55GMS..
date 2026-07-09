@@ -201,36 +201,39 @@ body {
 .search,
 .input,
 .navbar-input {
-  padding: 0.5rem;
+  padding: 1.2vw;
   font-family: "Roboto", serif;
-  color: var(--text-color);
-  background-color: #202124;
+  color: white;
+  background: var(--site-input-bg, #2a3a5b);
   border: none;
-  border-radius: var(--border-radius);
-  transition: box-shadow 0.2s;
+  border-radius: 5px;
+  outline: none;
+  transition: 0.2s;
   flex: 1;
   max-width: none;
-  font-size: 12px;
-  padding-left: 15px;
+  font-size: 24px;
+  text-align: center;
 }
 
 .search:hover,
 .input:hover,
 .navbar-input:hover {
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.18);
+  background: var(--site-search-hover-bg, #3a4a7b);
+  box-shadow: none;
 }
 
 .search:focus,
 .input:focus,
 .navbar-input:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.26);
+  background: var(--site-search-hover-bg, #3a4a7b);
+  box-shadow: none;
 }
 
 .search.autocomplete-active,
 .input.autocomplete-active,
 .navbar-input.autocomplete-active {
-  border-radius: var(--border-radius) var(--border-radius) 0 0;
+  border-radius: 5px 5px 0 0;
   border-bottom-color: transparent;
   border: none;
 }
@@ -238,7 +241,8 @@ body {
 .search::placeholder,
 .input::placeholder,
 .navbar-input::placeholder {
-  color: var(--text-placeholder-color);
+  color: #aaa;
+  text-align: center;
 }
 
 iframe {
@@ -280,10 +284,10 @@ iframe.active {
 /* Autocomplete Styles */
 #autocomplete {
   position: absolute;
-  background: #202124;
+  background: var(--site-input-bg, #2a3a5b);
   border: none;
   border-top: none;
-  border-radius: 0 0 var(--border-radius) var(--border-radius);
+  border-radius: 0 0 5px 5px;
   max-height: 300px;
   overflow-y: auto;
   z-index: 999;

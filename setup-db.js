@@ -3,7 +3,10 @@ import { initDatabase } from "./models/index.js";
 async function setupDatabase() {
   try {
     console.log("🔄 Setting up database...");
-    await initDatabase();
+    await initDatabase({
+      sync: true,
+      alter: process.env.DB_SYNC_ALTER === "true",
+    });
     console.log("✅ Database setup completed successfully!");
     process.exit(0);
   } catch (error) {

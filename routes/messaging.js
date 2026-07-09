@@ -12,6 +12,7 @@ import {
   sequelize,
 } from "../models/index.js";
 const router = express.Router();
+const UNKNOWN_USER = { username: "Unknown User", avatar: "/img/user.webp" };
 
 // Middleware to authenticate user via UUID
 const authenticateUser = async (req, res, next) => {
@@ -58,43 +59,26 @@ router.get("/chats/:chatId/members", authenticateUser, async (req, res) => {
       ], // Admin first, then by join order
     });
 
+    const memberUuids = members.map((member) => member.userUuid);
+    const [userMap, statusMap] = await Promise.all([
+      getUsersByUuidMap(memberUuids),
+      getStatusesByUuidMap(memberUuids),
+    ]);
+
     // Format the response with user data from cache and status
-    const formattedMembers = await Promise.all(
-      members.map(async (member) => {
-        let userData = { username: "Unknown User", avatar: "/img/user.webp" };
-        let userStatus = "offline";
+    const formattedMembers = members.map((member) => {
+      const userData = userMap.get(member.userUuid) || UNKNOWN_USER;
+      const status = statusMap.get(member.userUuid);
 
-        try {
-          userData = await getUsernameByUuid(member.userUuid);
-        } catch (error) {
-          console.error(
-            `Error fetching user data for ${member.userUuid}:`,
-            error
-          );
-        }
-
-        try {
-          const status = await UserStatus.findOne({
-            where: { userUuid: member.userUuid },
-          });
-          userStatus = status?.isOnline ? "online" : "offline";
-        } catch (error) {
-          console.error(
-            `Error fetching user status for ${member.userUuid}:`,
-            error
-          );
-        }
-
-        return {
-          uuid: member.userUuid,
-          username: userData.username,
-          avatar: userData.avatar || "/img/user.webp",
-          role: member.role,
-          status: userStatus,
-          joinedAt: member.createdAt,
-        };
-      })
-    );
+      return {
+        uuid: member.userUuid,
+        username: userData.username,
+        avatar: userData.avatar || "/img/user.webp",
+        role: member.role,
+        status: status?.isOnline ? "online" : "offline",
+        joinedAt: member.createdAt,
+      };
+    });
 
     res.json({
       success: true,
@@ -135,78 +119,22 @@ router.get("/user-chats", authenticateUser, async (req, res) => {
       order: [[{ model: Chat, as: "chat" }, "lastActivity", "DESC"]],
     });
 
-    const chatsWithUsernames = await Promise.all(
-      userChats.map(async (chatMember) => {
-        const chat = chatMember.chat;
-        let chatName = chat.name;
-        let otherUsersOnline = [];
+    const visibleMemberUuids = collectVisibleMemberUuidsFromChats(
+      userChats,
+      req.userUuid,
+    );
+    const [userMap, statusMap, unreadCountMap] = await Promise.all([
+      getUsersByUuidMap(visibleMemberUuids),
+      getStatusesByUuidMap(visibleMemberUuids),
+      getUnreadCountsByChatMap(userChats, req.userUuid),
+    ]);
 
-        // For direct messages, get the other user's username
-        if (chat.type === "direct") {
-          const otherMember = chat.members.find(
-            (m) => m.userUuid !== req.userUuid
-          );
-          if (otherMember) {
-            try {
-              const userResponse = await userCache.getUserByUuid(
-                otherMember.userUuid
-              );
-              chatName = userResponse.username;
-              const status = await UserStatus.findOne({
-                where: { userUuid: otherMember.userUuid },
-              });
-              otherUsersOnline.push({
-                uuid: otherMember.userUuid,
-                username: userResponse.username,
-                isOnline: status?.isOnline || false,
-              });
-            } catch (error) {
-              chatName = "Unknown User";
-            }
-          }
-        } else {
-          // For group chats, get all members' usernames and online status
-          otherUsersOnline = await Promise.all(
-            chat.members
-              .filter((m) => m.userUuid !== req.userUuid)
-              .map(async (member) => {
-                try {
-                  const userResponse = await userCache.getUserByUuid(
-                    member.userUuid
-                  );
-                  const status = await UserStatus.findOne({
-                    where: { userUuid: member.userUuid },
-                  });
-                  return {
-                    uuid: member.userUuid,
-                    username: userResponse.username,
-                    isOnline: status?.isOnline || false,
-                  };
-                } catch (error) {
-                  return {
-                    uuid: member.userUuid,
-                    username: "Unknown User",
-                    isOnline: false,
-                  };
-                }
-              })
-          );
-        }
-
-        return {
-          id: chat.id,
-          name: chatName,
-          type: chat.type,
-          lastMessage: chat.messages[0] || null,
-          unreadCount: await getUnreadMessageCount(
-            chat.id,
-            req.userUuid,
-            chatMember.lastReadAt
-          ),
-          members: otherUsersOnline,
-          lastActivity: chat.lastActivity,
-        };
-      })
+    const chatsWithUsernames = formatUserChats(
+      userChats,
+      req.userUuid,
+      userMap,
+      statusMap,
+      unreadCountMap,
     );
 
     res.json(chatsWithUsernames);
@@ -241,31 +169,20 @@ router.get("/chats/:chatId/messages", authenticateUser, async (req, res) => {
       offset: offset,
     });
 
-    // Get usernames for all senders
-    const messagesWithUsernames = await Promise.all(
-      messages.map(async (message) => {
-        try {
-          const userResponse = await getUsernameByUuid(message.senderUuid);
-          return {
-            ...message.toJSON(),
-            senderUsername: userResponse.username,
-          };
-        } catch (error) {
-          return {
-            ...message.toJSON(),
-            senderUsername: "Unknown User",
-          };
-        }
-      })
-    );
-
-    // Update last read timestamp
-    await ChatMember.update(
-      { lastReadAt: new Date() },
-      { where: { chatId, userUuid: req.userUuid } }
-    );
+    const messagesWithUsernames = await addSenderUsernamesToMessages(messages);
 
     res.json(messagesWithUsernames.reverse()); // Return in chronological order
+
+    // The Socket.IO mark_read path also updates this. Keep the REST update best-effort.
+    void ChatMember.update(
+      { lastReadAt: new Date() },
+      { where: { chatId, userUuid: req.userUuid } },
+    ).catch((error) => {
+      console.error(
+        "Error updating read timestamp after message fetch:",
+        error,
+      );
+    });
   } catch (error) {
     console.error("Error fetching messages:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -317,7 +234,7 @@ router.post("/chats/:chatId/messages", authenticateUser, async (req, res) => {
         // Use the blocking cache to check blocking status
         const blockingStatus = await blockingCache.getBlockingStatus(
           req.userUuid,
-          otherMember.userUuid
+          otherMember.userUuid,
         );
 
         if (blockingStatus.blockedByOther) {
@@ -353,17 +270,6 @@ router.post("/chats/:chatId/messages", authenticateUser, async (req, res) => {
       }
     }
 
-    // Create message
-    const message = await Message.create({
-      chatId,
-      senderUuid: req.userUuid,
-      content: sanitizedContent,
-      isSystem: isSystem || false,
-    });
-
-    // Update chat's last activity
-    await Chat.update({ lastActivity: new Date() }, { where: { id: chatId } });
-
     // Get sender username
     let senderUsername = "Unknown User";
     try {
@@ -372,6 +278,18 @@ router.post("/chats/:chatId/messages", authenticateUser, async (req, res) => {
     } catch (error) {
       console.error("Error fetching sender username:", error);
     }
+
+    // Create message
+    const message = await Message.create({
+      chatId,
+      senderUuid: req.userUuid,
+      senderUsername,
+      content: sanitizedContent,
+      isSystem: isSystem || false,
+    });
+
+    // Update chat's last activity
+    await Chat.update({ lastActivity: new Date() }, { where: { id: chatId } });
 
     const messageWithUsername = {
       ...message.toJSON(),
@@ -438,7 +356,7 @@ router.post("/chats/direct", authenticateUser, async (req, res) => {
       (chatId) =>
         chatCounts[chatId].length === 2 &&
         chatCounts[chatId].includes(req.userUuid) &&
-        chatCounts[chatId].includes(otherUserUuid)
+        chatCounts[chatId].includes(otherUserUuid),
     );
 
     if (existingChatId) {
@@ -559,6 +477,7 @@ router.post("/chats/:chatId/leave", authenticateUser, async (req, res) => {
     await Message.create({
       chatId,
       senderUuid: req.userUuid,
+      senderUsername: username || "System",
       content: `${username} has left this group`,
       isSystem: true,
     });
@@ -626,7 +545,7 @@ router.get("/friends", authenticateUser, async (req, res) => {
             lastSeen: null,
           };
         }
-      })
+      }),
     );
 
     res.json(friendsWithUsernames);
@@ -869,7 +788,7 @@ router.get("/friends/blocked", authenticateUser, async (req, res) => {
       blockedFriendships.map(async (friendship) => {
         try {
           const userResponse = await getUsernameByUuid(
-            friendship.addresseeUuid
+            friendship.addresseeUuid,
           );
           return {
             uuid: friendship.addresseeUuid,
@@ -881,7 +800,7 @@ router.get("/friends/blocked", authenticateUser, async (req, res) => {
             username: "Unknown User",
           };
         }
-      })
+      }),
     );
 
     res.json(blockedUsers);
@@ -919,7 +838,7 @@ router.get("/friends/requests", authenticateUser, async (req, res) => {
             createdAt: request.createdAt,
           };
         }
-      })
+      }),
     );
 
     res.json(requestsWithUsernames);
@@ -930,6 +849,143 @@ router.get("/friends/requests", authenticateUser, async (req, res) => {
 });
 
 // Helper functions
+function dedupe(values) {
+  return [...new Set(values.filter(Boolean))];
+}
+
+function toPlainObject(record) {
+  return typeof record?.toJSON === "function" ? record.toJSON() : record;
+}
+
+export async function getUsersByUuidMap(
+  uuids,
+  fetchUserByUuid = getUsernameByUuid,
+) {
+  const userMap = new Map();
+
+  await Promise.all(
+    dedupe(uuids).map(async (uuid) => {
+      try {
+        userMap.set(uuid, await fetchUserByUuid(uuid));
+      } catch (error) {
+        userMap.set(uuid, UNKNOWN_USER);
+      }
+    }),
+  );
+
+  return userMap;
+}
+
+export async function addSenderUsernamesToMessages(
+  messages,
+  fetchUserByUuid = getUsernameByUuid,
+) {
+  const plainMessages = messages.map(toPlainObject);
+  const senderUuidsToFetch = plainMessages
+    .filter((message) => !message.senderUsername && !message.isSystem)
+    .map((message) => message.senderUuid);
+  const userMap = await getUsersByUuidMap(senderUuidsToFetch, fetchUserByUuid);
+
+  return plainMessages.map((message) => ({
+    ...message,
+    senderUsername:
+      message.senderUsername ||
+      userMap.get(message.senderUuid)?.username ||
+      (message.isSystem ? "System" : "Unknown User"),
+  }));
+}
+
+export function collectVisibleMemberUuidsFromChats(userChats, userUuid) {
+  return dedupe(
+    userChats.flatMap((chatMember) =>
+      (chatMember.chat?.members || [])
+        .filter((member) => member.userUuid !== userUuid)
+        .map((member) => member.userUuid),
+    ),
+  );
+}
+
+async function getStatusesByUuidMap(uuids) {
+  const uniqueUuids = dedupe(uuids);
+  if (uniqueUuids.length === 0) {
+    return new Map();
+  }
+
+  const statuses = await UserStatus.findAll({
+    where: { userUuid: { [Op.in]: uniqueUuids } },
+  });
+
+  return new Map(statuses.map((status) => [status.userUuid, status]));
+}
+
+async function getUnreadCountsByChatMap(userChats, userUuid) {
+  if (userChats.length === 0) {
+    return new Map();
+  }
+
+  const unreadClauses = userChats.map((chatMember) => ({
+    chatId: chatMember.chat.id,
+    senderUuid: { [Op.ne]: userUuid },
+    createdAt: { [Op.gt]: chatMember.lastReadAt || new Date(0) },
+  }));
+
+  const unreadRows = await Message.findAll({
+    attributes: [
+      "chatId",
+      [sequelize.fn("COUNT", sequelize.col("id")), "unreadCount"],
+    ],
+    where: { [Op.or]: unreadClauses },
+    group: ["chatId"],
+    raw: true,
+  });
+
+  return new Map(
+    unreadRows.map((row) => [row.chatId, Number(row.unreadCount) || 0]),
+  );
+}
+
+export function formatUserChats(
+  userChats,
+  userUuid,
+  userMap = new Map(),
+  statusMap = new Map(),
+  unreadCountMap = new Map(),
+) {
+  return userChats.map((chatMember) => {
+    const chat = chatMember.chat;
+    let chatName = chat.name;
+
+    const otherMembers = (chat.members || []).filter(
+      (member) => member.userUuid !== userUuid,
+    );
+
+    const members = otherMembers.map((member) => {
+      const userData = userMap.get(member.userUuid) || UNKNOWN_USER;
+      const status = statusMap.get(member.userUuid);
+
+      return {
+        uuid: member.userUuid,
+        username: userData.username,
+        isOnline: status?.isOnline || false,
+      };
+    });
+
+    if (chat.type === "direct") {
+      chatName = members[0]?.username || "Unknown User";
+    }
+
+    return {
+      id: chat.id,
+      name: chatName,
+      type: chat.type,
+      lastMessage: chat.messages?.[0] || null,
+      unreadCount: unreadCountMap.get(chat.id) || 0,
+      members,
+      lastActivity: chat.lastActivity,
+    };
+  });
+}
+
 // Use the userCache for getting user information
 async function getUsernameByUuid(uuid) {
   try {
@@ -947,16 +1003,6 @@ async function getUserByUsername(username) {
   } catch (error) {
     throw new Error("User not found");
   }
-}
-
-async function getUnreadMessageCount(chatId, userUuid, lastReadAt) {
-  return await Message.count({
-    where: {
-      chatId,
-      senderUuid: { [Op.ne]: userUuid },
-      createdAt: { [Op.gt]: lastReadAt },
-    },
-  });
 }
 
 export default router;

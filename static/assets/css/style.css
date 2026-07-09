@@ -198,6 +198,41 @@ body {
   color: var(--site-text);
 }
 
+.form__input,
+input.searchbar,
+.site-input {
+  box-sizing: border-box;
+  padding: 1.2vw;
+  width: 50%;
+  border-radius: 5px;
+  background: var(--site-input-bg, #2a3a5b);
+  text-align: center;
+  font-family: "Roboto", serif;
+  font-size: 24px;
+  border: none;
+  outline: none;
+  color: white;
+  transition: 0.2s;
+  margin: 0;
+}
+
+.form__input::placeholder,
+input.searchbar::placeholder,
+.site-input::placeholder {
+  color: #aaa;
+  text-align: center;
+}
+
+.form__input:hover,
+input.searchbar:hover,
+.site-input:hover,
+.form__input:focus,
+input.searchbar:focus,
+.site-input:focus {
+  background: var(--site-search-hover-bg, #3a4a7b);
+  transition: 0.2s;
+}
+
 title {
   padding-top: 20%;
 }

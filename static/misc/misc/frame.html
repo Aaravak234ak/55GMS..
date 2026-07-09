@@ -7,6 +7,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Google</title>
     <link id="favicon" rel="icon" href="/favicon.ico" type="image/x-icon">
+    <script>
+        (function applySavedTheme() {
+            var allowedThemes = ["blue", "legacy", "midnight", "forest", "sunset", "contrast"];
+            var savedTheme = localStorage.getItem("siteTheme") || "blue";
+            var theme = savedTheme === "classic" ? "legacy" : savedTheme;
+            document.documentElement.dataset.theme = allowedThemes.includes(theme) ? theme : "blue";
+        })();
+    </script>
+    <link rel="stylesheet" href="/assets/css/style.css?v=3">
     <link rel="stylesheet" href="css.css">
 </head>
 
@@ -33,9 +42,9 @@
             const urlParams = new URLSearchParams(queryString);
 
             const title = urlParams.get('title') || 'Title Not Set';
-            link = urlParams.get('link');
+            link = (urlParams.get('link') || '').replace(/^\/+|\/+$/g, '');
             titleElement.textContent = title;
-            imgElement.src = `/misc/${link}/img.webp` || '/img/no.webp';
+            imgElement.src = link ? `/misc/${encodeURIComponent(link)}/img.webp` : '/img/no.webp';
 
         });
 
@@ -43,7 +52,7 @@
 
         document.getElementById('play-btn').addEventListener('click', function () {
             const iframe = document.getElementById('embed-frame');
-            iframe.src = `/misc/${link}/index.html`;
+            iframe.src = `/misc/${encodeURIComponent(link)}/index.html`;
             iframe.focus();
             document.getElementById('overlay').style.display = 'none';
         });

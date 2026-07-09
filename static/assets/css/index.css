@@ -20,54 +20,27 @@
 }
 
 .form__input {
-  box-sizing: border-box;
-  width: var(--site-search-width, min(88vw, 1080px));
-  padding: 25px 30px;
-  border-radius: var(--site-search-radius, 20px);
-  background-color: var(--site-search-bg, var(--site-input-bg, #101d31));
+  padding: 1.2vw;
+  width: 50%;
+  border-radius: 5px;
+  background: var(--site-input-bg, #2a3a5b);
   text-align: center;
-  font-size: var(--site-search-font-size, 1.3rem);
-  font-style: italic;
-  border: 2px solid
-    var(
-      --site-search-border-color,
-      var(--site-control-border-hover, rgba(255, 255, 255, 0.34))
-    );
+  font-size: 24px;
+  border: none;
   outline: none;
-  color: var(--site-input-text, white);
-  transition: all 0.3s ease;
+  color: white;
+  transition: 0.2s;
   margin: 0;
-  box-shadow: 0 4px 12px var(--site-shadow, rgba(0, 0, 0, 0.3));
 }
 
 .form__input::placeholder {
-  color: var(--site-placeholder, #aaa);
+  color: #aaa;
   text-align: center;
-  opacity: 1;
 }
 
 .form__input:hover {
-  border-color: var(
-    --site-search-border-color,
-    var(--site-control-border-hover, rgba(255, 255, 255, 0.34))
-  );
-  box-shadow: var(
-    --site-search-glow-shadow,
-    0 0 0 3px var(--site-control-ring, rgba(255, 255, 255, 0.18))
-  );
-  cursor: text;
-}
-
-.form__input:focus {
-  border-color: var(
-    --site-search-border-color,
-    var(--site-control-border-hover, rgba(255, 255, 255, 0.38))
-  );
-  box-shadow: var(
-    --site-search-glow-shadow,
-    0 0 0 4px var(--site-control-ring, rgba(255, 255, 255, 0.22))
-  );
-  cursor: text;
+  background: var(--site-search-hover-bg, #3a4a7b);
+  transition: 0.2s;
 }
 
 .shortcut {

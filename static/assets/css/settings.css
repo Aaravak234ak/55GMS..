@@ -208,6 +208,36 @@ input:focus {
   text-align: left;
 }
 
+.settings-page input:not([type="checkbox"]):not([type="file"]) {
+  box-sizing: border-box;
+  padding: 1.2vw;
+  width: 100%;
+  min-height: 0;
+  border-radius: 5px;
+  background: var(--site-input-bg, #2a3a5b);
+  text-align: center;
+  font-family: "Roboto", serif;
+  font-size: 24px;
+  border: none;
+  outline: none;
+  color: white;
+  transition: 0.2s;
+  margin-top: 8px;
+  box-shadow: none;
+}
+
+.settings-page input:not([type="checkbox"]):not([type="file"])::placeholder {
+  color: #aaa;
+  text-align: center;
+}
+
+.settings-page input:not([type="checkbox"]):not([type="file"]):hover,
+.settings-page input:not([type="checkbox"]):not([type="file"]):focus {
+  background: var(--site-search-hover-bg, #3a4a7b);
+  border: none;
+  box-shadow: none;
+}
+
 .settings-toggle-row {
   display: flex;
   align-items: center;

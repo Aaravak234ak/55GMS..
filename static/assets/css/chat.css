@@ -223,16 +223,14 @@ input:focus-visible {
 
 .chat-search input:hover,
 .form-group input:hover,
-.add-friend-form input:hover,
-.message-input:hover {
+.add-friend-form input:hover {
   border-color: var(--chat-control-border-hover);
   box-shadow: 0 0 0 4px var(--chat-ring);
 }
 
 .chat-search input:focus,
 .form-group input:focus,
-.add-friend-form input:focus,
-.message-input:focus-within {
+.add-friend-form input:focus {
   outline: none;
   border-color: var(--chat-control-border-hover);
   box-shadow: 0 0 0 4px var(--chat-ring);
@@ -666,25 +664,26 @@ input:focus-visible {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 8px 12px;
-  background: var(--chat-input-bg);
-  border: 1px solid var(--chat-control-border);
-  border-radius: var(--site-radius-lg);
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
+  padding: 0;
+  background: transparent;
 }
 
 .message-input input {
   flex: 1;
   min-width: 0;
-  padding: 8px 12px;
+  padding: 10px 0;
   color: var(--chat-input-text);
   background: transparent;
   border: 0;
+  box-shadow: none;
   outline: none;
   font-family: "Roboto", serif;
   font-size: 15px;
+  appearance: none;
+}
+
+.message-input input:focus-visible {
+  box-shadow: none;
 }
 
 .send-btn:disabled {
@@ -1253,4 +1252,54 @@ select {
     padding: 8px 12px;
     font-size: 13px;
   }
+}
+
+.chat-search input,
+.form-group input,
+.add-friend-form input,
+.message-input input {
+  box-sizing: border-box;
+  padding: 1.2vw;
+  border-radius: 5px;
+  background: var(--site-input-bg, #2a3a5b);
+  text-align: center;
+  font-family: "Roboto", serif;
+  font-size: 24px;
+  border: none;
+  outline: none;
+  color: white;
+  transition: 0.2s;
+  box-shadow: none;
+}
+
+.chat-search input,
+.form-group input,
+.add-friend-form input {
+  width: 100%;
+}
+
+.message-input input {
+  flex: 1;
+  width: auto;
+}
+
+.chat-search input::placeholder,
+.form-group input::placeholder,
+.add-friend-form input::placeholder,
+.message-input input::placeholder {
+  color: #aaa;
+  text-align: center;
+}
+
+.chat-search input:hover,
+.form-group input:hover,
+.add-friend-form input:hover,
+.message-input input:hover,
+.chat-search input:focus,
+.form-group input:focus,
+.add-friend-form input:focus,
+.message-input input:focus {
+  background: var(--site-search-hover-bg, #3a4a7b);
+  border: none;
+  box-shadow: none;
 }
