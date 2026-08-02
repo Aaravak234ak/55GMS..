@@ -2,7 +2,7 @@ function script(text) {
   console.log(
     "%cScript Injection",
     "color: cyan; font-weight: 600; background: black; padding: 0 5px; border-radius: 5px",
-    text
+    text,
   );
 }
 
@@ -15,13 +15,13 @@ function script(text) {
     "sunset",
     "contrast",
   ]);
-  const savedTheme = localStorage.getItem("siteTheme") || "blue";
+  const savedTheme = localStorage.getItem("siteTheme") || "legacy";
   const theme =
     savedTheme === "classic"
       ? "legacy"
       : allowedThemes.has(savedTheme)
         ? savedTheme
-        : "blue";
+        : "legacy";
   document.documentElement.dataset.theme = theme;
 })();
 
@@ -31,7 +31,7 @@ function script(text) {
 const newScript = document.createElement("script");
 newScript.setAttribute(
   "src",
-  "https://www.googletagmanager.com/gtag/js?id=G-N0LG27M8L8"
+  "https://www.googletagmanager.com/gtag/js?id=G-N0LG27M8L8",
 );
 const inlinegascript = document.createElement("script");
 inlinegascript.innerHTML = `window.dataLayer = window.dataLayer || [];
@@ -78,7 +78,7 @@ fetch("/assets/json/ads.json")
       adscipterz92.setAttribute("async", "");
       adscipterz92.setAttribute(
         "src",
-        "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6700774525685317"
+        "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6700774525685317",
       );
       adscipterz92.setAttribute("crossorigin", "anonymous");
       document.head.append(adscipterz92);

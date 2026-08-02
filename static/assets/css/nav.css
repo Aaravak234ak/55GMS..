@@ -15,8 +15,12 @@
   background: var(--site-surface-2, #5e7594);
   border: 1px solid var(--site-border, #353d49);
   border-radius: var(--site-radius-md, 14px);
-  box-shadow: none;
-  transition: border-color 0.2s ease;
+  box-shadow:
+    0 10px 28px var(--site-shadow, rgba(0, 0, 0, 0.24)),
+    inset 0 1px 0 color-mix(in srgb, var(--site-text, #fff) 12%, transparent);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
   z-index: 100;
 }
 
@@ -32,12 +36,16 @@
   font-size: 14px;
   font-weight: 700;
   text-transform: uppercase;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .navbar a:not(:first-child):hover {
   color: var(--site-accent-text, #484c51);
   background: var(--site-accent-hover, #e7928f);
+  transform: scale(1.05);
 }
 
 .navbar a:first-child {
@@ -50,13 +58,32 @@
   font-size: 20px;
   font-weight: 700;
   text-overflow: ellipsis;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transform-origin: left center;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    transform 0.3s ease;
   white-space: nowrap;
 }
 
 .navbar a:first-child:hover {
   color: var(--site-accent-text, #484c51);
   background: var(--site-accent-hover, #e7928f);
+  transform: translateX(10px) scale(1.1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navbar a:first-child,
+  .navbar a:not(:first-child) {
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
+  }
+
+  .navbar a:first-child:hover,
+  .navbar a:not(:first-child):hover {
+    transform: none;
+  }
 }
 
 .navbar a:nth-last-child(2),

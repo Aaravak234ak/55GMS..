@@ -12,7 +12,7 @@ var siteThemes = {
 
 function getSafeTheme(theme) {
   if (theme === "classic") return "legacy";
-  return siteThemes[theme] ? theme : "blue";
+  return siteThemes[theme] ? theme : "legacy";
 }
 
 function setSiteTheme(theme) {
@@ -22,7 +22,7 @@ function setSiteTheme(theme) {
 }
 
 (function applySavedTheme() {
-  var savedTheme = localStorage.getItem("siteTheme") || "blue";
+  var savedTheme = localStorage.getItem("siteTheme") || "legacy";
   document.documentElement.dataset.theme = getSafeTheme(savedTheme);
 })();
 
@@ -260,8 +260,7 @@ function cloak() {
       doc.head.appendChild(link);
       doc.body.appendChild(iframe);
 
-      const pLink =
-        localStorage.getItem("PanicLink") || "https://google.com";
+      const pLink = localStorage.getItem("PanicLink") || "https://google.com";
       location.replace(pLink);
 
       const script = doc.createElement("script");
@@ -429,7 +428,6 @@ fetch("https://api.github.com/repos/55gms/55gms/commits")
       .toISOString()
       .split("T")[0];
     var lastCommitDate = convertDate(unformatted);
-    document.querySelector(
-      "#updated"
-    ).textContent = `Last Updated: ${lastCommitDate}`;
+    document.querySelector("#updated").textContent =
+      `Last Updated: ${lastCommitDate}`;
   });

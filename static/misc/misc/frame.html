@@ -10,12 +10,12 @@
     <script>
         (function applySavedTheme() {
             var allowedThemes = ["blue", "legacy", "midnight", "forest", "sunset", "contrast"];
-            var savedTheme = localStorage.getItem("siteTheme") || "blue";
+            var savedTheme = localStorage.getItem("siteTheme") || "legacy";
             var theme = savedTheme === "classic" ? "legacy" : savedTheme;
-            document.documentElement.dataset.theme = allowedThemes.includes(theme) ? theme : "blue";
+            document.documentElement.dataset.theme = allowedThemes.includes(theme) ? theme : "legacy";
         })();
     </script>
-    <link rel="stylesheet" href="/assets/css/style.css?v=3">
+    <link rel="stylesheet" href="/assets/css/style.css?v=4">
     <link rel="stylesheet" href="css.css">
 </head>
 
