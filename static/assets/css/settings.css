@@ -185,11 +185,11 @@ input:focus {
 .tab-cloak:hover {
   background: color-mix(in srgb, var(--site-surface-2, #5e7594) 84%, rgba(0, 0, 0, 0.22));
   border-color: color-mix(in srgb, var(--site-muted, #b5cae0) 38%, var(--site-border, #353d49));
-  transform: translateY(-1px);
+  transform: translateY(-1px) scale(1.05);
 }
 
 .tab-cloak:active {
-  transform: translateY(0);
+  transform: translateY(0) scale(0.96);
 }
 
 .tab-cloak-secondary {

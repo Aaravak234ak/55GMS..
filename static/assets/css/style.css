@@ -257,6 +257,19 @@ main {
   top: 25vh;
 }
 
+:where(button:not(:disabled)) {
+  transform-origin: center;
+  transition: transform 0.15s ease;
+}
+
+:where(button:not(:disabled)):hover {
+  transform: scale(1.05);
+}
+
+:where(button:not(:disabled)):active {
+  transform: scale(0.96);
+}
+
 #gs {
   cursor: pointer;
   background-color: var(--site-button);
@@ -303,6 +316,23 @@ main {
 }
 .gs:active {
   transform: scale(0.94);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(button:not(:disabled)),
+  #gs,
+  .gs {
+    transition: none;
+  }
+
+  :where(button:not(:disabled)):hover,
+  :where(button:not(:disabled)):active,
+  #gs:hover,
+  #gs:active,
+  .gs:hover,
+  .gs:active {
+    transform: none;
+  }
 }
 
 .horizontal-items {

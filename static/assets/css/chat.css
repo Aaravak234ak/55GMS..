@@ -148,7 +148,7 @@ body.chat-page {
 .btn-primary:hover {
   color: var(--chat-text);
   background: var(--chat-button-hover);
-  transform: translateY(-1px);
+  transform: translateY(-1px) scale(1.05);
 }
 
 .action-btn:active,
@@ -540,11 +540,13 @@ input:focus-visible {
   text-align: left;
   transition:
     background-color 0.15s ease,
-    color 0.15s ease;
+    color 0.15s ease,
+    transform 0.15s ease;
 }
 
 .menu-option:hover {
   background: var(--chat-surface);
+  transform: scale(1.05);
 }
 
 #leaveGroupOption,
@@ -789,7 +791,8 @@ input:focus-visible {
   transition:
     background-color 0.2s ease,
     border-color 0.2s ease,
-    color 0.2s ease;
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .tab-btn.active {
@@ -801,6 +804,7 @@ input:focus-visible {
 .tab-btn:hover {
   color: var(--chat-text);
   background: var(--chat-surface);
+  transform: scale(1.05);
 }
 
 .badge {
@@ -886,7 +890,7 @@ input:focus-visible {
 
 .btn-success:hover {
   background: color-mix(in srgb, var(--chat-success) 78%, white);
-  transform: translateY(-1px);
+  transform: translateY(-1px) scale(1.05);
 }
 
 .btn-danger {
@@ -896,7 +900,7 @@ input:focus-visible {
 
 .btn-danger:hover {
   background: var(--chat-danger-hover);
-  transform: translateY(-1px);
+  transform: translateY(-1px) scale(1.05);
 }
 
 .member-tag {
@@ -1302,4 +1306,15 @@ select {
   background: var(--site-search-hover-bg, #3a4a7b);
   border: none;
   box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button[class] {
+    transition: none;
+  }
+
+  button[class]:hover:not(:disabled),
+  button[class]:active:not(:disabled) {
+    transform: none;
+  }
 }
