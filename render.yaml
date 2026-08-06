@@ -1,6 +1,7 @@
 services:
   - type: web
     name: gms
-    env: node
+    env: docker
     plan: free
+    dockerfilePath: Dockerfile
     startCommand: node .
